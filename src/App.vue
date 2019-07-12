@@ -1,28 +1,53 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="board">
+    <div class="main-interface">
+      <div @click="activeInstance = 'Level'">Level</div>
+    </div>
+
+    <div v-bind:is="activeInstance" :class="activeInstance" ref="instance"></div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+  import Level from "./components/instances/level"
 
-export default {
-  name: 'app',
-  components: {
-    HelloWorld
+  export default {
+    name: "app",
+    components: {
+      Level
+    },
+    data: function () {
+      return {
+        activeInstance: "Level"
+      }
+    }
   }
-}
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style lang="scss">
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .board {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .main-interface {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    color: white;
+    text-shadow: 1px 1px 0 rgba(black, .5), -1px -1px 0 rgba(black, .5), -1px 1px 0 rgba(black, .5), 1px -1px 0 rgba(black, .5);
+  }
 </style>
