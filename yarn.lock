@@ -3399,6 +3399,10 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.0.tgz#8d8fdc73977cb04104721cb53666c1ca64cd328b"
 
+greiner-hormann@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/greiner-hormann/-/greiner-hormann-1.4.1.tgz#0c2e52e98657f6ee345072134fc4119be53bf491"
+
 gzip-size@^5.0.0:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/gzip-size/-/gzip-size-5.1.1.tgz#cb9bee692f87c0612b232840a873904e4c135274"
@@ -4242,6 +4246,10 @@ levn@^0.3.0, levn@~0.3.0:
 lines-and-columns@^1.1.6:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.1.6.tgz#1c00c743b433cd0a4e80758f7b64a57440d9ff00"
+
+lines-intersect@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/lines-intersect/-/lines-intersect-1.0.0.tgz#a60c87a3d957a0871d114d054a685ab71f728042"
 
 load-json-file@^1.0.0:
   version "1.1.0"
@@ -5299,6 +5307,17 @@ pkg-up@^2.0.0:
 pluralize@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-7.0.0.tgz#298b89df8b93b0221dbf421ad2b1b1ea23fc6777"
+
+point-inside-polygon@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/point-inside-polygon/-/point-inside-polygon-1.0.1.tgz#f4f6de901bf8f9cd2f7d9b5fb4758f1afa9812ab"
+
+polygon-overlap@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/polygon-overlap/-/polygon-overlap-1.0.5.tgz#0ce3526a8bd98674ab046fc92dd02664b6d8242d"
+  dependencies:
+    lines-intersect "1.0.0"
+    point-inside-polygon "1.0.1"
 
 portfinder@^1.0.20:
   version "1.0.21"

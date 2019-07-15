@@ -25,6 +25,13 @@
 </script>
 
 <style lang="scss">
+  :root {
+    --black : #111;
+    --white: #E5E5E5;
+    --red: #BD4545;
+    --green: #28905B;
+  }
+
   * {
     box-sizing: border-box;
   }
@@ -33,6 +40,10 @@
   body {
     margin: 0;
     overflow: hidden;
+    background: var(--black);
+    color: var(--white);
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 
   .board {
