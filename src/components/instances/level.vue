@@ -1,28 +1,28 @@
 <template>
   <Instance class="instance--level">
-    <svg height="300" width="300" ref="svg">
+    <svg :height="svgHeight" :width="svgWidth" ref="svg">
 
-      <g v-for="(shape, i) in shapes" :ref="`shape-${ i }`">
+      <g v-for="(shape, i) in shapes" :ref="`shape-${ i }`" v-bind:key="`shape-${ i }`">
         <polygon :points="setPoints(shape)" />
 
-        <point v-for="(point, j) in shape" :shape="shape" :point="point" :selected="[pointSelected[0], pointSelected[1]].join() == [i, j].join()" @click.native="setPoint(i, j)" :id="`point-${ i }-${ j }`" />
+        <point v-for="(point, j) in shape" :shape="shape" :point="point" :selected="[pointSelected[0], pointSelected[1]].join() == [i, j].join()" @click.native="setPoint(i, j)" :id="`point-${ i }-${ j }`" v-bind:key="`point-${ j }-${ i }`" />
       </g>
 
       <g ref="lines"></g>
 
-      <g v-for="(shape, i) in shapes">
-        <use v-for="(point, j) in shape" :xlink:href="`#point-${ i }-${ j }`" />
+      <g v-for="(shape, i) in shapes" v-bind:key="`shape-point-${ i }`">
+        <use v-for="(point, j) in shape" :xlink:href="`#point-${ i }-${ j }`" v-bind:key="`shape-point-${ j }-${ i }`" />
       </g>
     </svg>
 
-    <div class="interface interface--level-complete" slot="interface" v-if="completed">
-      done.
-    </div>
+    <level-complete slot="interface" v-if="completed" />
   </Instance>
 </template>
 
 <script>
+  import { EventBus } from "../event_bus"
   import Vue from "vue"
+  import LevelComplete from "../interface/level-complete"
   import Instance from "../instance"
   import Point from "../entities/point"
   import "polygon-overlap"
@@ -30,19 +30,24 @@
   export default {
     components: {
       Instance,
-      Point
+      Point,
+      LevelComplete
     },
     data() {
       return {
-        shapes: this.$root.levelData[this.$root.currentLevel].shapes,
+        shapes: [],
         pointSelected: false,
         firstPoint: {},
         secondPoint: [],
-        completed: false
+        completed: false,
+        svgHeight: 300,
+        svgWidth: 300
       }
     },
     mounted() {
-      this.checkIntersectionOfAllLines()
+      this.initiateLevel()
+
+      EventBus.$on("initiateLevel", () => { this.initiateLevel() })
     },
     methods: {
       setPoints(shape) {
@@ -71,9 +76,11 @@
 
         const distance = this.getDistance(oldValueCurrent, newValueCurrent) + 1
         const pixelsPerSecond = 1250
-        const transitionDuration = distance / pixelsPerSecond * 1000
         const fps = 60
         const interval = 1000 / fps
+
+        let transitionDuration = distance / pixelsPerSecond * 1000
+        if (transitionDuration < 100) transitionDuration = 100
         const steps = Math.ceil(transitionDuration / interval)
 
         let stepX = differenceX / steps
@@ -175,6 +182,29 @@
         const t = ( s2x * (p0y - p2y) - s2y * (p0x - p2x)) / (-s2x * s1y + s1x * s2y)
 
         return s >= 0 + forgiveness && s <= 1 - forgiveness && t >= 0 + forgiveness && t <= 1 - forgiveness
+      },
+      initiateLevel() {
+        this.complete = false
+
+        this.setLevelData()
+        this.resizeSVG()
+
+        this.$nextTick(() => {
+          this.checkIntersectionOfAllLines()
+        })
+      },
+      setLevelData() {
+        this.shapes = this.$root.levelData[this.$root.currentLevel].shapes
+      },
+      resizeSVG() {
+        const allCoordinates = this.shapes.flat().map(item => item.split(","))
+        const highestY = allCoordinates.reduce((prev, current) => parseInt(prev[1]) > parseInt(current[1]) ? prev : current)[1]
+        const highestX = allCoordinates.reduce((prev, current) => parseInt(prev[0]) > parseInt(current[0]) ? prev : current)[0]
+        const lowestY = allCoordinates.reduce((prev, current) => parseInt(prev[1]) < parseInt(current[1]) ? prev : current)[1]
+        const lowestX = allCoordinates.reduce((prev, current) => parseInt(prev[0]) < parseInt(current[0]) ? prev : current)[0]
+
+        this.svgHeight = parseInt(highestY) + parseInt(lowestY)
+        this.svgWidth = parseInt(highestX) + parseInt(lowestX)
       }
     },
     watch: {
@@ -205,27 +235,7 @@
   }
 
   .interface--level-complete {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    background: var(--black);
-    box-shadow: 0 0 20px 20px var(--black);
-    font-size: 28px;
     opacity: 0;
-    animation: fade-in-interface 1000ms 500ms forwards;
-    z-index: 1000;
-  }
-
-  @keyframes fade-in-interface {
-    from {
-      opacity: 0l
-    }
-
-    to {
-
-      opacity: 1;
-    }
+    animation: fade-in 1000ms 500ms forwards;
   }
 </style>

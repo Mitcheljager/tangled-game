@@ -1,7 +1,9 @@
 <template>
   <div class="board">
+    <main-menu v-if="menuActive"></main-menu>
+
     <div class="main-interface">
-      <div @click="activeInstance = 'Level'">Level</div>
+      <div @click="toggleMenu()">menu.</div>
     </div>
 
     <div v-bind:is="activeInstance" :class="activeInstance" ref="instance"></div>
@@ -9,16 +11,44 @@
 </template>
 
 <script>
+  import { EventBus } from "./components/event_bus"
+  import MainMenu from "./components/interface/main-menu"
   import Level from "./components/instances/level"
+  import LevelSelect from "./components/instances/level-select"
+  import Settings from "./components/instances/settings"
 
   export default {
     name: "app",
     components: {
-      Level
+      Level,
+      LevelSelect,
+      Settings,
+      MainMenu
     },
     data: function () {
       return {
-        activeInstance: "Level"
+        activeInstance: "Level",
+        menuActive: false
+      }
+    },
+    mounted() {
+      EventBus.$on("toggleMainMenu", () => { this.toggleMenu() })
+      EventBus.$on("goToLevel", () => { this.goToLevel() })
+      EventBus.$on("changeInstance", (instance) => { this.changeInstance(instance) })
+    },
+    methods: {
+      changeInstance(instance) {
+        this.activeInstance = instance
+        this.toggleMenu()
+      },
+      toggleMenu() {
+        this.menuActive = !this.menuActive
+      },
+      goToLevel(level = this.$root.currentLevel + 1) {
+        this.$root.currentLevel = level
+
+        EventBus.$emit("resetBoardPosition")
+        EventBus.$emit("initiateLevel")
       }
     }
   }
@@ -55,10 +85,21 @@
 
   .main-interface {
     position: fixed;
-    bottom: 0;
-    left: 0;
+    bottom: 5vmax;
+    left: 5vmax;
     z-index: 10;
     color: white;
     text-shadow: 1px 1px 0 rgba(black, .5), -1px -1px 0 rgba(black, .5), -1px 1px 0 rgba(black, .5), 1px -1px 0 rgba(black, .5);
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0l
+    }
+
+    to {
+
+      opacity: 1;
+    }
   }
 </style>

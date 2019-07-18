@@ -9,6 +9,7 @@
 </template>
 
 <script>
+  import { EventBus } from "./event_bus"
   import Impetus from "impetus"
 
   export default {
@@ -27,9 +28,7 @@
     data: function () {
       return {
         elementPositionY: 0,
-        elementPositionX: 0,
-        newPositionY: 0,
-        newPositionX: 0
+        elementPositionX: 0
       }
     },
     computed: {
@@ -40,6 +39,11 @@
       }
     },
     mounted: function() {
+      EventBus.$on("resetBoardPosition", () => {
+        this.elementPositionY = 0
+        this.elementPositionX = 0
+      })
+
       if (!this.enableDrag) return
 
       const element = this.$refs.content
@@ -93,5 +97,29 @@
     left: 0;
     width: 100%;
     text-align: center;
+  }
+
+  .interface--fullscreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: var(--black);
+    box-shadow: 0 0 20px 20px var(--black);
+    font-size: 28px;
+    z-index: 1000;
+  }
+
+  .interface--fullscreen__tray {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10vmax;
+    font-size: 18px;
   }
 </style>

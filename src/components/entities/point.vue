@@ -13,9 +13,6 @@
         isSelected: false
       }
     },
-    mounted() {
-      const svg = this.$refs.svg
-    },
     methods: {
       setPointPosition(point, position) {
         return point.split(",")[position]
