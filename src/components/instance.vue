@@ -14,12 +14,6 @@
 
   export default {
     props: {
-      backgrounds: {
-        default: () => [
-          { name: "stars", speed: 0, backgroundSpeed: 5 },
-          { name: "stars-infinite", speed: 0, backgroundSpeed: 5 }
-        ]
-      },
       enableDrag: {
         default: true,
         type: Boolean
@@ -44,24 +38,27 @@
         this.elementPositionX = 0
       })
 
-      if (!this.enableDrag) return
+      if (this.enableDrag) this.setImpetus()
 
-      const element = this.$refs.content
-      const elementWidth = element.offsetWidth
-      const elementHeight = element.offsetHeight
-
-      new Impetus({
-        update: (x, y) => {
-          this.elementPositionX = x
-          this.elementPositionY = y
-
-          // this.moveParallax(this.$el, x, y)
-        },
-        boundX: [element.offsetWidth * -0.5, element.offsetWidth * 0.5],
-        boundY: [element.offsetHeight * -0.5, element.offsetHeight * 0.5]
-      })
+      console.log(this.enableDrag)
     },
     methods: {
+      setImpetus() {
+        const element = this.$refs.content
+        const elementWidth = element.offsetWidth
+        const elementHeight = element.offsetHeight
+
+        new Impetus({
+          update: (x, y) => {
+            this.elementPositionX = x
+            this.elementPositionY = y
+
+            // this.moveParallax(this.$el, x, y)
+          },
+          boundX: [element.offsetWidth * -0.5, element.offsetWidth * 0.5],
+          boundY: [element.offsetHeight * -0.5, element.offsetHeight * 0.5]
+        })
+      },
       moveParallax(element, x, y) {
         const elementsToMove = element.querySelectorAll("[instance-parallax-background]")
 
@@ -74,6 +71,11 @@
           if (elementBackgroundSpeed) element.style.backgroundPosition = `calc(50% + ${ x * elementBackgroundSpeed }px) calc(50% + ${ y * elementBackgroundSpeed }px)`
         })
       }
+    },
+    watch: {
+      draggable() {
+        if (this.draggable) this.setImpetus
+      }
     }
   }
 </script>
@@ -85,6 +87,11 @@
     width: 100vw;
     overflow: hidden;
     transform: none;
+  }
+
+  .instance__title {
+    margin-top: 0;
+    margin-bottom: 5vmax;
   }
 
   .instance__content {

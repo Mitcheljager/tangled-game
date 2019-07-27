@@ -33,7 +33,8 @@
     },
     mounted() {
       EventBus.$on("toggleMainMenu", () => { this.toggleMenu() })
-      EventBus.$on("goToLevel", () => { this.goToLevel() })
+      EventBus.$on("closeMainMenu", () => { this.closeMenu() })
+      EventBus.$on("goToLevel", (level) => { this.goToLevel(level) })
       EventBus.$on("changeInstance", (instance) => { this.changeInstance(instance) })
     },
     methods: {
@@ -44,11 +45,13 @@
       toggleMenu() {
         this.menuActive = !this.menuActive
       },
+      closeMenu() {
+        this.menuActive = false
+      },
       goToLevel(level = this.$root.currentLevel + 1) {
         this.$root.currentLevel = level
 
         EventBus.$emit("resetBoardPosition")
-        EventBus.$emit("initiateLevel")
       }
     }
   }

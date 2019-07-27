@@ -1,17 +1,27 @@
 <template>
-  <Instance class="instance--level">
+  <Instance class="instance--level" ref="instance">
     <svg :height="svgHeight" :width="svgWidth" ref="svg">
 
-      <g v-for="(shape, i) in shapes" :ref="`shape-${ i }`" v-bind:key="`shape-${ i }`">
+      <g v-for="(shape, i) in shapes" :ref="`level-${ $root.currentLevel }-shape-${ i }`" v-bind:key="`level-${ $root.currentLevel }-shape-${ i }`">
         <polygon :points="setPoints(shape)" />
 
-        <point v-for="(point, j) in shape" :shape="shape" :point="point" :selected="[pointSelected[0], pointSelected[1]].join() == [i, j].join()" @click.native="setPoint(i, j)" :id="`point-${ i }-${ j }`" v-bind:key="`point-${ j }-${ i }`" />
+        <point
+          v-for="(point, j) in shape"
+          :shape="shape"
+          :point="point"
+          :levelData="levelData"
+          :selected="[pointSelected[0], pointSelected[1]].join() == [i, j].join()" @click.native="setPoint(i, j, $event)"
+          :id="`level-${ $root.currentLevel }-point-${ i }-${ j }`"
+          v-bind:key="`level-${ $root.currentLevel }-point-${ j }-${ i }`" />
       </g>
 
       <g ref="lines"></g>
 
-      <g v-for="(shape, i) in shapes" v-bind:key="`shape-point-${ i }`">
-        <use v-for="(point, j) in shape" :xlink:href="`#point-${ i }-${ j }`" v-bind:key="`shape-point-${ j }-${ i }`" />
+      <g v-for="(shape, i) in shapes" v-bind:key="`level-${ $root.currentLevel }-shape-point-${ i }`">
+        <use
+          v-for="(point, j) in shape"
+          :xlink:href="`#level-${ $root.currentLevel }-point-${ i }-${ j }`"
+          v-bind:key="`level-${ $root.currentLevel }-shape-point-${ j }-${ i }`" />
       </g>
     </svg>
 
@@ -36,6 +46,7 @@
     data() {
       return {
         shapes: [],
+        levelData: [],
         pointSelected: false,
         firstPoint: {},
         secondPoint: [],
@@ -45,15 +56,18 @@
       }
     },
     mounted() {
-      this.initiateLevel()
-
       EventBus.$on("initiateLevel", () => { this.initiateLevel() })
+      EventBus.$on("resetLevel", () => { this.resetLevel() })
+
+      this.initiateLevel()
     },
     methods: {
       setPoints(shape) {
         return shape.join(" ")
       },
       setPoint(shape, point) {
+        if (this.levelData.statics && this.levelData.statics.includes(this.shapes[shape][point])) return
+
         this.pointSelected = !this.pointSelected
 
         if (this.pointSelected) {
@@ -113,32 +127,18 @@
             let lineArray = []
 
             lineArray[0] = line.split(",").map(Number)
-
-            if (shape[index + 1]) {
-              lineArray[1] = shape[index + 1].split(",").map(Number)
-            } else {
-              lineArray[1] = shape[0].split(",").map(Number)
-            }
+            lineArray[1] = shape[index + 1] ? shape[index + 1].split(",").map(Number) : shape[0].split(",").map(Number)
 
             lines.push(lineArray)
           })
         })
 
-        let allLinesClear = true
+        let allLinesClear = false // true
 
         for (const [i, line] of lines.entries()) {
           for (const [j, line2] of lines.entries()) {
 
-            if (this.checkLineIntersect(
-                  line[0][0],
-                  line[0][1],
-                  line[1][0],
-                  line[1][1],
-                  line2[0][0],
-                  line2[0][1],
-                  line2[1][0],
-                  line2[1][1]))
-            {
+            if (this.checkLineIntersect(line, line2)) {
               const lineElement = document.createElementNS("http://www.w3.org/2000/svg", "line")
 
               lineElement.setAttribute("stroke-width", "5px")
@@ -170,7 +170,16 @@
 
         return Math.sqrt(xs + ys)
       },
-      checkLineIntersect(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y) {
+      checkLineIntersect(line, line2) {
+        const p0x = line[0][0]
+        const p0y = line[0][1]
+        const p1x = line[1][0]
+        const p1y = line[1][1]
+        const p2x = line2[0][0]
+        const p2y = line2[0][1]
+        const p3x = line2[1][0]
+        const p3y = line2[1][1]
+
         const forgiveness = 0.05
 
         const s1x = p1x - 1 - p0x
@@ -188,13 +197,14 @@
 
         this.setLevelData()
         this.resizeSVG()
-
-        this.$nextTick(() => {
-          this.checkIntersectionOfAllLines()
-        })
       },
       setLevelData() {
-        this.shapes = this.$root.levelData[this.$root.currentLevel].shapes
+        this.shapes = JSON.parse(JSON.stringify(this.$root.levelData[this.$root.currentLevel].shapes))
+        this.levelData = this.$root.levelData[this.$root.currentLevel]
+      },
+      resetLevel() {
+        this.setLevelData()
+        EventBus.$emit("closeMainMenu")
       },
       resizeSVG() {
         const allCoordinates = this.shapes.flat().map(item => item.split(","))
@@ -210,6 +220,8 @@
     watch: {
       shapes() {
         this.checkIntersectionOfAllLines()
+
+        console.log(this.shapes)
       }
     }
   }
@@ -221,6 +233,7 @@
     grid-auto-columns: auto;
     grid-auto-rows: auto;
     place-items: center;
+    justify-content: center;
   }
 
   polygon {

@@ -25,6 +25,7 @@
     methods: {
       goToNextLevel() {
         EventBus.$emit("goToLevel")
+        EventBus.$emit("initiateLevel")
       }
     }
   }
