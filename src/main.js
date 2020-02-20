@@ -7,8 +7,6 @@ Vue.config.productionTip = false
 new Vue({
   render: h => h(App),
   data: function() {
-    // localStorage.setItem("maxLevel", 9)
-
     return {
       levelData: JSON.parse(JSON.stringify(LevelData)),
       currentLevel: parseInt(localStorage.getItem("currentLevel")) || 0,

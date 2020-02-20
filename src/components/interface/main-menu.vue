@@ -2,6 +2,9 @@
   <div class="interface interface--main-menu interface--fullscreen">
     <a @click="changeInstance('Level')">resume.</a>
     <a @click="resetLevel()" v-if="getCurrentInstance() == 'Level'">reset.</a>
+
+    <br>
+
     <a @click="changeInstance('LevelSelect')">levels.</a>
     <a @click="changeInstance('Settings')">settings.</a>
   </div>

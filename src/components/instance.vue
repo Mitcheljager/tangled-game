@@ -39,8 +39,6 @@
       })
 
       if (this.enableDrag) this.setImpetus()
-
-      console.log(this.enableDrag)
     },
     methods: {
       setImpetus() {
@@ -50,13 +48,13 @@
 
         new Impetus({
           update: (x, y) => {
-            this.elementPositionX = x
-            this.elementPositionY = y
+            this.elementPositionX = this.$root.invertCamera ? x * -1 : x
+            this.elementPositionY = this.$root.invertCamera ? y * -1 : y
 
             // this.moveParallax(this.$el, x, y)
           },
-          boundX: [element.offsetWidth * -0.5, element.offsetWidth * 0.5],
-          boundY: [element.offsetHeight * -0.5, element.offsetHeight * 0.5]
+          boundX: [elementWidth * -0.5, elementWidth * 0.5],
+          boundY: [elementHeight * -0.5, elementHeight * 0.5]
         })
       },
       moveParallax(element, x, y) {

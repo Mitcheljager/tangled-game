@@ -1,8 +1,7 @@
 <template>
   <Instance class="instance--level" ref="instance">
     <svg :height="svgHeight" :width="svgWidth" ref="svg">
-
-      <g v-for="(shape, i) in shapes" :ref="`level-${ $root.currentLevel }-shape-${ i }`" v-bind:key="`level-${ $root.currentLevel }-shape-${ i }`">
+      <g v-for="(shape, i) in shapes" ref="shapes" v-bind:key="`level-${ $root.currentLevel }-shape-${ i }`">
         <polygon :points="setPoints(shape)" />
 
         <point
@@ -51,6 +50,7 @@
         firstPoint: {},
         secondPoint: [],
         completed: false,
+        unclearedShapes: [],
         svgHeight: 300,
         svgWidth: 300
       }
@@ -122,20 +122,24 @@
         this.$refs.lines.innerHTML = ""
 
         let lines = []
-        this.shapes.forEach(shape => {
+        this.shapes.forEach((shape, shape_id) => {
           shape.forEach((line, index) => {
             let lineArray = []
 
             lineArray[0] = line.split(",").map(Number)
             lineArray[1] = shape[index + 1] ? shape[index + 1].split(",").map(Number) : shape[0].split(",").map(Number)
+            lineArray[2] = shape_id
 
             lines.push(lineArray)
           })
         })
 
-        let allLinesClear = false // true
+        let allLinesClear = true
+        this.unclearedShapes = []
 
+        // eslint-disable-next-line
         for (const [i, line] of lines.entries()) {
+          // eslint-disable-next-line
           for (const [j, line2] of lines.entries()) {
 
             if (this.checkLineIntersect(line, line2)) {
@@ -150,12 +154,14 @@
               lineElement.setAttribute("stroke", "var(--red)")
 
               this.$refs.lines.append(lineElement)
+              this.unclearedShapes.push(line[2])
 
               allLinesClear = false
             }
           }
         }
 
+        this.checkUnclearedShapes()
         this.completed = allLinesClear
       },
       getDistance(point1, point2) {
@@ -192,6 +198,19 @@
 
         return s >= 0 + forgiveness && s <= 1 - forgiveness && t >= 0 + forgiveness && t <= 1 - forgiveness
       },
+      checkUnclearedShapes() {
+        this.$nextTick(() => {
+          this.shapes.forEach((shape, i) => {
+            const ref = this.$refs["shapes"][i]
+
+            if (this.unclearedShapes.includes(i)) {
+              ref.classList.remove("shape--finished")
+            } else {
+              ref.classList.add("shape--finished")
+            }
+          })
+        })
+      },
       initiateLevel() {
         this.complete = false
 
@@ -220,8 +239,6 @@
     watch: {
       shapes() {
         this.checkIntersectionOfAllLines()
-
-        console.log(this.shapes)
       }
     }
   }
@@ -241,6 +258,7 @@
     stroke: var(--white);
     stroke-width: 4px;
     pointer-events: none;
+    transition: fill 250ms 250ms;
   }
 
   line {
